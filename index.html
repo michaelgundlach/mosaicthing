@@ -1,0 +1,77 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/static/style.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+    <script>
+        function examples() {
+            $('#targetUrl').val('http://lh4.ggpht.com/gundlach/RSu8uHsUABI/AAAAAAAABbM/xcaUnr1ff7A/IMG_6744.jpg?imgmax=512');
+            $('#feedUrl').val('http://picasaweb.google.com/data/feed/base/user/gundlach/albumid/4984284245621407761?kind=photo&alt=rss&hl=en_US');
+        }
+    </script>
+  </head>
+  <body>
+    <div style="float:right; margin:30px;" class="infobox">
+        <img src = "static/logo-400.png">
+    </div>
+
+    {% if error %}
+    <div style='background:red'>Sorry, those URLs aren't right.</div>
+    {% endif %}
+
+    <a href="{{logurl}}">{{logtext}}</a><br>
+    <p/>
+
+    {% if user %}
+      {% if mosaics %}
+        Mosaics you've made:
+        <div style='width:80%; border:1px solid black'>
+        {% for mosaic in mosaics %}
+          <img src="{{mosaic.url}}" width=100px>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endif %}
+
+    <p/>
+
+    <h1>MosaicThing (alpha)</h1>
+
+    MosaicThing turns your favorite image into a mosaic made up of images from
+    your favorite photostream.  Eventually this site will allow you to
+    print multiple-page versions of your mosaic for hanging up, and other cool
+    features.  For now, just try it out!<br><br>
+
+    <form action="/mosaic" method="post">
+      <div class="infobox" style='width:450px; margin:5px'>
+        <div>
+          Url of an image:<br>
+          <input id="targetUrl" name="targetUrl" type="text" style='width:300px'
+           onkeyup="i=$('#targetpreview'); i.attr('src', this.value);
+           i.attr('style', 'display:none')"/><br>
+        </div>
+        <div width=150px style='padding-top:10px'>
+          <img width=150px style='display:none' id="targetpreview" 
+           onload='$("#targetpreview").attr("style", "display:block")'/>
+        </div>
+      </div>
+
+      <div class="infobox" style='width:450px; clear:left; margin:5px'>
+        Url of a Picasa RSS feed:<br>
+        <input id="feedUrl" name="feedUrl" type="text" style='width:300px'><br>
+        <small>To find this link, visit a Picasaweb site, click on an album,
+            and at the bottom of the page of pictures you'll see an "RSS" link.
+            Right click the link and choose "Copy Link Location", then paste
+            it in here.
+        </small>
+      </div>
+
+      <div>
+          <br>
+          If you don't want to hunt around for URLs yourself, I'll
+          <a href="javascript:examples()">fill in some examples</a> for you.
+      </div>
+
+      <div><input type="submit" value="Build Mosaic"></div>
+    </form>
+  </body>
+</html>

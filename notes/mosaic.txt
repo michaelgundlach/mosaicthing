@@ -1,0 +1,78 @@
+Ian's suggestion: let you click on a tile to get a closer view of it.  Means
+making a large version of each tile, or else calculating it on the fly -
+probably the latter is better, because they won't click on many of them.
+
+/ [index.py]
+  get():
+    if error=true:
+      print "sucky URLs, bud"
+
+    if logged in:
+      logout
+      list of pix made
+    else:
+      login
+
+    specify a picture URL
+      - pulls it in on the fly like google does?
+    specify a picasa/etc feed
+      - give some defaults, like flowers and celebrities
+
+    specify widths maybe
+
+    go button
+      POST to /mosaic
+
+/mosaic [mosaic.py]
+  post():
+    fetch and store URL and feed's images or send back to /?error=true
+    create an id tied to url and imagelist
+    redirect to /mosaic/id/build
+
+/mosaic/id/build: [mosaic.py]
+  get(): [all this is in HTML+javascript]
+    loads target in large proportion
+    print "loading your images" over it
+    keep asking via ajax /mosaic/id/prepare for server to load an image or two.  gets back percent complete.
+    load images into a progress bar format, or just cop out and show percentage.
+
+    once all loaded:
+
+    randomly choose an empty location on the main image, make an
+      <img src='/mosaic/id/tile?x=&y='> which becomes 
+      visible and placed onload; onerror it repeats itself(?).
+    wait 100ms and repeat if anybody isn't loaded yet
+    when done, async AJAX to /mosaic/id/complete
+    button to /mosaic/id/save appears    
+
+/mosaic/id/prepare
+  get():
+    look for an unloaded image
+    load it, thumb it, save it to DB
+    return percent complete
+
+/mosiac/id/thumb/imgid [images.py]
+  get():
+    if not in db, fetch image [thumbid], transform to thumb, save to db. then:
+    return thumb from database
+
+/mosaic/id/tile/x,y
+  get():
+    yields colored tile data, by asking sorryrobot for it.  saves to db
+    so sorryrobot can ask for it when building on server-side.
+
+/mosaic/id/complete [images.py]
+  get():
+    while completing:
+      sleep 100ms.
+    if completed, return.
+    mark as 'completing'
+    ask sorryrobot to build image from /mosaic/id/tile requests; tell him
+      the target img so he can get width and height (!), and the x and y
+      sizes
+    mark as 'completed'
+
+/mosaic/id/save [images.py]
+  get():
+    call /complete's function
+    send as attachment

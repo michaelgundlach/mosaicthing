@@ -1,0 +1,49 @@
+2k per thumb-orig in
+400k for lead img in
+2k out per thumb to sorryrobot
+2k per tile from sorryrobot
+20k for page loads etc
+400k for lead img to user
+2k out per thumb to user
+2k per tile out to user
+1M for result image to user
+
+150 feed images
+tiles must be like 30x30 to get any detail = 900 tiles
+
+300 in + 400 in + 300 out + 1800 in + 20 misc + 400 out + 300 out + 1800 out + 1000 out
+2500 in + 3800 out + 20 misc
+
+call it 2.5M in, 4M out per mosaic.
+
+bw is 10 cents per gig in, 12 cents per gig out.
+
+that's .01 cents per meg in, .012 cents per meg out.
+
+2.5 M in * .01 cents per meg in = .025 cents per mosaic for incoming
+4 M out * .012 cents per meg out = .048 cents per mosaic for outgoing
+
+.025 + .048 = .073 cents per mosaic total.
+
+1370 mosaics = $1.
+
+we could squeeze that to 1500 mosaics surely by limiting feed size (150
+doesn't have to be average, it could be max) or out resolution.
+
+assuming avg ad costs 10 cents, i need ten ad clicks per 1370 mosaics.  assume
+2 mosaics per user: 1370 mosaics is 685 users.  i need ten ad clicks in 685
+users, or 1 in 68.  that's 1.5% clickthrough rate.  doubtful on a website like
+this.
+
+if i got 1% clickthrough, i'd get 2/3 the income i need, and thus i could do
+three times as many mosaics for a dollar: 4000.  at 2 mosaics per user, that's
+2000 users per dollar.  i'd pay 10 dollars a month to have 20,000 people use
+my site(?)
+
+BUT! i get free quota as well.  10G in and 10G out free.  
+2.5M in, 4M out per mosaic. that's 2500 out free, 4000 in free.  certainly
+1250 users free per day, * 30 = 37500 users free per month.
+
+or, at 10 cents per gig in and 12 cents per gig out, that's a free $2.20 per
+day, or $66/mo.  that could support 66 * 2000 = 130,000 users per month, free.
+SWEET.  assuming perfectly normal distribution.

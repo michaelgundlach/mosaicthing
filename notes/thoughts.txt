@@ -1,0 +1,6 @@
+the page:
+calls prepare till it's done, despite errors
+
+what events happen?
+load: call prepare till done
+click x/y: tile everybody

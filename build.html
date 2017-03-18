@@ -1,0 +1,185 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/static/style.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+    <script src="/js/jquerytimer.js"></script>
+    <script>
+      $(document).ready(function() {
+        $('#coloringError').hide();
+        $('#coloringMessage').hide();
+        $('.textinput').css('width', '50px');
+
+        $('#thumbSizes').hide();
+
+        $('#btnSetWidths').click(function() {
+            var tiles_x=$('#tiles_x').val();
+            var lead_width=$('#lead_width').val();
+            if (tiles_x == '' || lead_width == '') {
+                alert('numbers please');
+                return;
+            }
+            // Get new width, height, and grid info from the server, then
+            // tile the newly resized lead
+            $('#coloringMessage').show();
+            var url ='/mosaic/{{jobid}}/setwidths'
+                + '?tiles_x='+tiles_x+'&lead_width='+lead_width;
+            $.getJSON(url, retile);
+        });
+
+        loadThumbs('500ms');
+      });
+
+      // Load a bunch of tile requests onto the lead, gridwidth wide by
+      // however many necessary tall.
+      function retile(size_data) {
+        // TODO: handle cancelling.  for now, we load every tile and
+        // don't check for cancellation.  a simple answer: we make our
+        // own div which goes into parent div.  we clear the parent
+        // div upon start of our function, so anybody else running
+        // is no longer visible in the parent div.  and we check
+        // at start of every tile if our div is still visible in the
+        // parent div; if not, we've been cancelled, so stop the timer
+        // and quit.
+        
+        var tiles_x = size_data.tiles_x;
+        var tiles_y = size_data.tiles_y;
+
+        var lead_width = size_data.lead_width;
+        var lead_height = size_data.lead_height;
+
+        var tile_width = size_data.tile_width;
+        var tile_height = size_data.tile_height;
+
+        var slots=[];
+        for (i=0; i<tiles_x; i++) {
+          for (j=0; j<tiles_y; j++) {
+            slots[slots.length] = [i,j];
+          }
+        }
+
+        $('#tiles').html('');
+        $('#targetimg').css({width:lead_width+'px', height:lead_height+'px'});
+        $('#tiles').everyTime('50ms', function(iteration) {
+          // TODO: um, come on.  what a mess.
+
+          // Choose a random unused slot to fill in.
+          var slotChoice = Math.floor(Math.random() * slots.length);
+          var slot = slots[slotChoice];
+          slots.splice(slotChoice, 1); // remove this item
+          var i = slot[0];
+          var j = slot[1];
+
+          // The URL of this tile.
+          var img_url = '/mosaic/{{jobid}}/tile?'
+              + 'tiles_x='+tiles_x+'&tiles_y='+tiles_y
+              + '&tile_width='+tile_width+'&tile_height='+tile_height
+              + '&lead_width='+lead_width+'&lead_height='+lead_height
+              + '&i='+i+'&j='+j;
+
+          // Create an img div with that URL, and add it to the tiles div
+          // at the right spot.
+          var div_left = i*tile_width+'px';
+          var div_top = j*tile_height+'px';
+          var div = $('<div/>').css('position','absolute')
+              .css({left:div_left, top:div_top,
+                    width:tile_width+'px', height:tile_height+'px'})
+              .hide();
+          var img=$('<img/>')
+              .css({width:tile_width+'px',height:tile_height+'px'})
+              .attr('src', img_url)
+              .load(function(){$('#coloringMessage').hide();
+                               $(this).parent().show();});
+          div.html(img);
+          $('#tiles').append(div);
+        }, times=tiles_x*tiles_y);
+      } // end of retile2(size_data)
+
+      function loadThumbs(delay) {
+        // Ask the server repeatedly to prepare thumbnails.  Do this
+        // until it says it's done, at which point call getColorAverages().
+
+        // TODO temp: how does skipping prepare look?
+        $('#loadingMessage').hide();
+        getColorAverages();
+        return;
+
+        var span = $('#percentLoaded');
+        span.everyTime(delay, function() {
+          if (span.html() == "100")
+            return;
+
+          $.get('/mosaic/{{jobid}}/prepare', function(data) {
+            if (span.html() == "100")
+              return;
+
+            if (parseInt(span.html()) < parseInt(data))
+              span.html(data);
+
+            if (data == "100") {
+              span.stopTime(delay);
+              $('#loadingMessage').hide();
+              getColorAverages();
+            }
+          });
+        });
+      }
+
+      // Ask the server to calculate thumbnail colors
+      function getColorAverages() {
+          $('#coloringMessage').show();
+          // TODO: handle 404/500/etc errors appropriately
+          $.get('/mosaic/{{jobid}}/colorthumbs', function(data) {
+              $('#coloringMessage').hide();
+              if (data != "OK") {
+                  $('#coloringError').show();
+                  return;
+              }
+              else {
+                  $('#thumbSizes').show();
+              }
+          });
+      }
+    </script>
+  </head>
+  <body>
+    <table width=100% border=3>
+      <tr>
+        <td width=750 height=100% align=left valign=top>
+          <div style='position:absolute; border:5px solid black'>
+            <div id='targetimgdiv' style='position:absolute; left:0px; top:0px'>
+                <img id='targetimg' src="{{orig_img_url}}"
+                   style='left:0px; top:0px; width:700px'>
+            </div>
+            <div id='tiles' style='position:absolute; left:0px; top:0px'/>
+          </div>
+        </td>
+        <td>
+          <div id='messages' style='position:relative;clear:left'>
+            <div id='coloringMessage' class=message>
+              Calculating colors...
+            </div>
+            <div id='loadingMessage' class=message>
+              Loading your images... <span id='percentLoaded'>0</span>% done
+            </div>
+            <div id='coloringError' class=message>
+              There was an error and I can't continue.  Try reloading
+              the page.  Sorry!
+            </div>
+            <div id='thumbSizes' style='margin:5px; border:1px solid black'> 
+              Tiles wide: <input class=textinput id=tiles_x> (try 15)<br>
+              Image width: <input class=textinput id=lead_width> (try 700)<br>
+              <input type=button value="make tiles" id=btnSetWidths>
+            </div>
+          </div>
+          <div id='thumbs'>
+            {% for thumb in thumbs %}
+            <div class=thumbdiv> 
+              <img class='thumbimage' src='{{thumb}}'>
+            </div>
+            {% endfor %}
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

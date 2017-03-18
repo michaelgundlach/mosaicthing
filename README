@@ -1,0 +1,63 @@
+= MosaicThing =
+
+
+== TODO ==
+
+limit thumbs to use before tiling
+
+tile weighting so we don't have a million of the same tile for "Orange"
+
+clean up the code
+
+see todos in code
+
+money math
+
+make entire tiling take a max of X seconds -- so that really big ones don't take so long.  if possible.
+
+how to handle really big mosaics?  for now just don't allow images bigger than available screen real estate, but... maybe really big ones just get saved as a bunch of images to print?  or sent straight to printer?
+
+
+
+
+== feature requests ==
+
+clean out jobs that are old
+
+picasa feed discovery instead of HAVING to give the RSS link
+
+flickr et al
+
+sliders
+
+save
+
+"mosaics you've made" (what do they look like small?)
+
+email to a friend
+
+download
+
+print
+
+digg etc buttons
+
+adsense (where on the page?)
+
+handle giant feeds gracefully (smaller icons, limit max maybe)
+
+
+
+== crazy ideas ==
+
+print giant mosaics -- for a fee -- and i turn around and send them to Kodak
+
+print giant mosaic-by-numbers for real tile mosaics
+
+
+
+
+== optimizations i could do if needed ==
+
+we cache thumbnails at size=50, and then rebuild them for smaller.  instead we could cache thumbnail at size=[largest useful], as "main_thumb", then reiize that instead of resizing and cropping the original feed_url.
+

@@ -1,0 +1,33 @@
+tiles wide? [could be a slider]
+image width? [could be a slider from a reasonable min to max]
+<= make tiles =>
+ ajaxes to /mosaic/65/setwidths?tiles=4&lead_width=200
+
+setwidths.get():
+  knows that the lead is actually 400x800
+  sends back
+    lead_width:200
+    lead_height:400
+    tiles_x:4
+    tiles_y:8 // Math.floor(4 * (400/200))
+    tile_width = 50 // Math.floor(200 / 4)
+    tile_height = 50 // Math.floor(400 / 8)
+
+upon receipt of json size_data, the browser calls retile(size_data):
+  everytime(times = tiles_x*tiles_y, function(i) {
+    choose a slot i,j at random
+    fill it with img src=/mosaic/65/tile?tile_width=200&tile_height=400&tiles_x=4&tiles_y=8&i=<i>&j=<j>
+  })
+
+tile.get():
+  knows that the lead is actually 400x800
+  because tiles_x,y is (4,8), knows that it must average 100x100 of the
+    lead
+  if x,y had been 10, 20, it would have to average 40x40 of the lead
+  checks the cache for data: leadcolors_4_8 or leadcolor_10_20, gets back
+    a 4x8 or 10x20 array of color averages.  or makes it if it doesn't exist.
+  now it knows the average color for spot i,j, and can pick the closest
+    thumb_color and thus thumb, say id=45.
+
+  then it tints thumbid 45 by the diff, to average to (150,200,250).  then
+    it caches that as tile_x_y_i_j_width_height_lead and returns it.

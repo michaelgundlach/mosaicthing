@@ -1,0 +1,72 @@
+gae loads lead, others, makes thumbs.
+sends lead to sorryrobot, gets back array of colors.
+sends each (tinyfied if needed) thumb to sorryrobot, gets back color.
+
+chooses best thumb itself.  asks for tinting of thumb by tuple values.
+
+img.sr.com/tint => image data
+  r=-4&g=50&b=-30&img=xyzxyzxyz...
+
+img.sr.com/getavgcolor => (4, 5, 6)
+  img=xyzxyzxyz...
+
+if there is one that is close enough, don't send to sr, to save bw.
+
+cache tile under (jobid, target color) in case we need that slot again
+or another slot is same color.  (or cache rounded to nearest 10 each
+so we have better chance of not asking sr for something almost identical?)
+
+the computer:
+1. loads lead and others
+2. converts others to thumbs
+3. gets colors for leads and thumbs
+4. sends thumbs and lead to user
+5. tints tiles
+6. sends tiles to user
+
+if we do this on GAE, 3 and 5 happen on SR, and we have also:
+7. sends tiles to SR for tinting
+8. sends leads and tiny thumbs to SR for coloring
+9. gets tiles from SR tinted
+
+so, if we do this on GAE, only the conversion to thumbs happens on GAE.
+we could calculate colors on GAE natively with BMPs: slow, but could do
+during the Prepare stage for each thumb.
+
+on GAE, assuming GAE doesn't do color avgs, per mosaic SR will:
+ - read lead, read tiny thumbs
+ - read many full size thumbs
+ - write tiles
+
+if we did this on SR completely, per mosaic SR will:
+ - read lead, read thumbs
+ - write thumbs, write tiles
+
+bandwidth use is maybe 5% or 10% less overall (write thumbs = only diff.)
+
+now, computation.  if on GAE, per mosaic SR will:
+ - color each lead and thumb
+ - tint each tile
+
+if all on SR, per mosaic SR will:
+ - color each lead and thumb
+ - tint each tile
+
+same computation on SR!  argh.
+
+use tinted divs instead of actually tinting!  except IE will take fudging
+with to make it work.  of course.
+
+i can really tinify the lead and thumbs to get colorization from SR.  then i
+can do tinting with DIVs, and SR only has to colorize about one large image's
+worth.  
+
+# will get avg color of whole image!
+color = img.resize( (1,1), Image.ANTIALIAS).getpixel((0,0))
+
+# could i convert to 1x1 using gae, then to BMP, then just read it?
+# no.  only to PNG, and only 3x3 smallest.
+but SR can do 1000 3x3 colorizations in .22 seconds (in a loop, 1 request).
+so all thumbnails together could be done in no time.
+
+
